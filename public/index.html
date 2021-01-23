@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+
+<head>
+  <meta charset="utf-8">
+ 
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no,minimal-ui">
+    <!-- <meta http-equiv=Content-Security-Policy
+        content="default-src *; connect-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'"> -->
+    <title>pano</title>
+    <style>
+      body {
+        /* background: url(img/bg.png) no-repeat center; */
+        background-size: 100%;
+        background-color: #61a076;
+        background-image: linear-gradient(141deg,#66aa76 0%,#2ba353 51%,#10b95c 75%);
+        overflow: hidden;
+      }
+    </style>
+
+    
+<script src="./cubepano/canvas.toBlob-polyfill.js"></script>
+<script src="./cubepano/ImageData-polyfill.js"></script>
+<script src="./build/three.js"></script>
+<script src="./build/three_2.js"></script>
+<!-- 引入threejs扩展控件OrbitControls.js -->
+<script src="./examples/js/controls/OrbitControls.js"></script>
+<script src="./examples/js/controls/FlyControls.js"></script>
+<script src="./examples/js/loaders/FBXLoader.js"></script>
+<script src="./examples/js/libs/inflate.min.js"></script>
+
+<!-- 篮球比赛 -->
+<script src='./examples/js/loaders/MD2Loader.js'></script>
+<script src='./examples/js/MorphBlendMesh.js'></script>
+<script src='./examples/js/MD2CharacterComplex.js'></script>
+<script src='./examples/js/Gyroscope.js'></script>
+     
+<script src="./vr/browser.js"></script>
+<script src="./vr/photo-sphere-viewer.js"></script>
+<script src="./vr/viewer-compat.js"></script>
+
+</head>
+
+<body>
+  <div id="app"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "67153792",
+      "name": "搜索",
+      "font_class": "sousuo",
+      "unicode": "e633",
+      "unicode_decimal": 58931
+    },
+    {
+      "icon_id": "67153793",
+      "name": "VIP",
+      "font_class": "VIP",
+      "unicode": "e62f",
+      "unicode_decimal": 58927
+    },
+    {
+      "icon_id": "16588086",
+      "name": "历史记录",
+      "font_class": "lishijilu",
+      "unicode": "e709",
+      "unicode_decimal": 59145
+    }
+  ]
+}

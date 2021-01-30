@@ -24,7 +24,7 @@ export const listSearch = {
     ]),
     addplaneMesh(position) {
       var textureLoader = new THREE.TextureLoader();
-      var plane = new THREE.PlaneGeometry(40, 40); // 创建一个矩形几何体
+      var plane = new THREE.PlaneGeometry(4, 4); // 创建一个矩形几何体
       //标签使用基础网格材质即可
       var planeMaterial = new THREE.MeshBasicMaterial({
         //矩形平面网格模型设置纹理贴图
@@ -211,6 +211,20 @@ export const listSearch = {
       }
     },
     // 篮球比赛 --end
+    setlName(val) {
+      let date = new Date();
+      let name =
+        val +
+        // date.getFullYear() +
+        // (date.getMonth() + 1) +
+        // date.getDate() +
+        // "-" +
+        date.getHours() +
+        date.getMinutes() +
+        date.getSeconds() +
+        date.getMilliseconds();
+      return name;
+    },
   },
 
   // created() {

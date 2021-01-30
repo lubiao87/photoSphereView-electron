@@ -18,7 +18,7 @@
 
 <script>
 import { SceneToPano } from "../../cubepano/SceneToPano";
-// import fs from "fs";
+import fs from "fs";
 // const { Op } = require("sequelize");
 import { listSearchMixin } from "../../mixin"; //混淆请求
 import headers from "@/components/header";
@@ -61,7 +61,7 @@ export default {
   },
   created() {
     this.pointList = JSON.parse(localStorage.getItem("pointList")) || [];
-    this.imageIndex = JSON.parse(localStorage.getItem("imageIndex")) || 0;
+    this.imageIndex = JSON.parse(localStorage.getItem("imageIndex"));
   },
   mounted() {
     this.init();
@@ -82,7 +82,7 @@ export default {
         1,
         20000
       );
-      this.camera.position.set(0, 120, 100);
+      this.camera.position.set(0, 10, -100);
 
       this.clock = new window.THREE.Clock();
       this.scene = new window.THREE.Scene();
@@ -98,23 +98,6 @@ export default {
       const hemiLight = new window.THREE.HemisphereLight(0xffffff, 0x444444);
       hemiLight.position.set(0, 200, 0);
       this.scene.add(hemiLight);
-
-      // const dirLight = new window.THREE.DirectionalLight(0xffffff);
-      // dirLight.position.set(0, 200, 100);
-      // dirLight.castShadow = true;
-
-      // dirLight.shadow.mapSize.width = 1024;
-      // dirLight.shadow.mapSize.height = 512;
-      // dirLight.shadow.camera.near = 100;
-      // dirLight.shadow.camera.far = 1200;
-
-      // dirLight.shadow.camera.top = 180;
-      // dirLight.shadow.camera.bottom = -100;
-      // dirLight.shadow.camera.left = -120;
-      // dirLight.shadow.camera.right = 120;
-      // this.scene.add(dirLight);
-
-      // scene.add( new window.THREE.CameraHelper( dirLight.shadow.camera ) );
 
       var gt = new window.THREE.TextureLoader().load(
         "textures/grasslight-big.jpg"
@@ -149,6 +132,7 @@ export default {
         });
         this.objectMeth = object;
         this.scene.add(object);
+
         if (
           this.imageIndex !== undefined &&
           this.imageIndex < this.pointList.length
@@ -156,9 +140,16 @@ export default {
           setTimeout(() => {
             this.generateImage();
           }, 400);
+        } else if (this.pointList.length > 0) {
+          console.log("this.pointList", this.pointList);
+          let rotation = this.pointList[0].rotation;
+          let point = this.pointList[0].position;
+          this.camera.position.set(point.x,point.y, point.z);
+          this.camera.rotation.set(rotation.x, rotation.y, rotation.z);
+          this.camera.updateProjectionMatrix();
         }
 
-        this.addControls(); // 打篮球
+        // this.addControls(); // 打篮球
       });
 
       this.renderer = new window.THREE.WebGLRenderer({ antialias: true });
@@ -180,7 +171,6 @@ export default {
         this.camera,
         this.renderer.domElement
       );
-      this.controls.target.set(0, 120, 18);
       this.controls.minPolarAngle = Math.PI / 3;
       this.controls.maxPolarAngle = Math.PI;
       this.controls.zoomSpeed = 5.0;
@@ -247,12 +237,13 @@ export default {
             } else {
               m = -2;
             }
-            this.controls.target.set(point.x + n, point.y + 100, point.z + m);
-            this.camera.lookAt(point.x + n, point.y + 100, point.z + m);
 
+            this.controls.target.set(point.x + n, point.y + 10, point.z + m);
+            this.camera.lookAt(new window.THREE.Vector3(point.x + n, point.y + 10, point.z + m));
             this.controls.update();
-            this.camera.position.set(point.x, point.y + 100, point.z);
-            this.renderer.render(this.scene, this.camera);
+            this.camera.position.set(point.x, point.y + 10, point.z);
+            // this.renderer.render(this.scene, this.camera);
+            this.camera.updateProjectionMatrix();
             // let planeMesh = this.addplaneMesh(intersects[0].point);
             // this.scene.add(planeMesh);
           }
@@ -266,12 +257,8 @@ export default {
         case "生成":
           this.imageIndex = 0;
           localStorage.setItem("imageIndex", 0);
-          this.generateImage();
-          // window.imageName = "myimage" + this.imageIndex;
-          // this.equi.update(this.camera, this.scene, function (params) {
-          //   console.log(params);
-          //   that.reload();
-          // });
+          this.reload();
+
           break;
         case "成果":
           window.ipcRenderer.send("route", "photoSphere");
@@ -288,14 +275,15 @@ export default {
           this.pointList = [];
           localStorage.removeItem("pointList");
           if (item.active) {
-            that.camera.position.y = 100;
-            let position = that.camera.position;
-            this.controls.target.set(
-              position.x + 1,
-              position.y,
-              position.z + 1
-            );
-            this.controls.update();
+            that.camera.position.y = 10;
+            // let position = that.camera.position;
+            // this.controls.target.set(
+            //   position.x + 1,
+            //   position.y,
+            //   position.z + 1
+            // );
+            that.renderer.render(that.scene, that.camera);
+            // this.controls.update();
             document.onkeydown = function (event) {
               //在全局中绑定按下事件
 
@@ -306,18 +294,19 @@ export default {
               switch (keyCode) {
                 case 32:
                   {
-                    let position = new window.THREE.Vector3() 
-                    let rotation = new window.THREE.Vector3() 
-                    position.copy(that.camera.position) 
-                    rotation.copy(that.camera.rotation) 
+                    that.renderer.render(that.scene, that.camera);
+                    let position = new window.THREE.Vector3();
+                    let rotation = new window.THREE.Vector3();
+                    position.copy(that.camera.position);
+                    rotation.copy(that.camera.rotation);
                     let point = new window.THREE.Vector3(
-                      position.x,
-                      position.y - 100,
-                      position.z
+                      that.camera.position.x,
+                      that.camera.position.y - 10,
+                      that.camera.position.z
                     );
                     that.pointList.push({
                       position,
-                      rotation
+                      rotation,
                     });
                     console.log(that.pointList);
                     localStorage.setItem(
@@ -348,17 +337,31 @@ export default {
       }
     },
     generateImage() {
+      this.pointList = JSON.parse(localStorage.getItem("pointList"));
       let position = this.pointList[this.imageIndex].position;
       let rotation = this.pointList[this.imageIndex].rotation;
       this.camera.position.copy(position);
-      console.log(this.camera);
-      this.camera.rotation.copy(rotation);
+      this.camera.rotation.set(rotation.x, rotation.y, rotation.z);
+      // this.camera.updateProjectionMatrix();
       this.renderer.render(this.scene, this.camera);
-      window.imageName = "myimage" + this.imageIndex;
+      let name = this.setlName("point_");
+      window.imageName = name + "_scene_" + this.imageIndex;
+
+      let canvas = this.renderer.domElement;
+      let photoSrc = canvas.toDataURL("image/jpeg", 0.8);
+      let base64Data = photoSrc.replace(/^data:image\/\w+;base64,/, "");
+      let dataBuffer = new Buffer(base64Data, "base64");
+      let imgpath = `D:\\image\\${name}_preview_${this.imageIndex}.jpg`;
+      fs.writeFileSync(imgpath, dataBuffer);
+      this.pointList[this.imageIndex].previewPath = imgpath;
+
       setTimeout(() => {
         this.equi.update(this.camera, this.scene, (data) => {
+          this.pointList[this.imageIndex].scenePath = data;
+          localStorage.setItem("pointList", JSON.stringify(this.pointList));
           this.imageIndex++;
           localStorage.setItem("imageIndex", this.imageIndex);
+
           console.log(data);
           this.reload();
         });

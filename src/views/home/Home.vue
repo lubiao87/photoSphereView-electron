@@ -49,6 +49,11 @@ export default {
           active: false,
         },
         {
+          name: "环视",
+          icon: "iconfont icon-iconfonttubiao_huanraofeihang",
+          active: false,
+        },
+        {
           name: "关闭",
           icon: "el-icon-switch-button",
           active: false,
@@ -57,6 +62,7 @@ export default {
       characters: [],
       pointList: [],
       imageIndex: 0,
+      lookAtIndex: 0,
     };
   },
   created() {
@@ -82,7 +88,7 @@ export default {
         1,
         20000
       );
-      this.camera.position.set(0, 10, -100);
+      
 
       this.clock = new window.THREE.Clock();
       this.scene = new window.THREE.Scene();
@@ -144,11 +150,13 @@ export default {
           console.log("this.pointList", this.pointList);
           let rotation = this.pointList[0].rotation;
           let point = this.pointList[0].position;
-          this.camera.position.set(point.x,point.y, point.z);
+          this.camera.position.set(point.x, point.y, point.z);
           this.camera.rotation.set(rotation.x, rotation.y, rotation.z);
           this.camera.updateProjectionMatrix();
         }
-
+        this.camera.position.set(0, 0, 10);
+        console.log(this.camera.position)
+        console.log(this.camera.rotation)
         // this.addControls(); // 打篮球
       });
 
@@ -171,8 +179,8 @@ export default {
         this.camera,
         this.renderer.domElement
       );
-      this.controls.minPolarAngle = Math.PI / 3;
-      this.controls.maxPolarAngle = Math.PI;
+      // this.controls.minPolarAngle = Math.PI / 3;
+      // this.controls.maxPolarAngle = Math.PI;
       this.controls.zoomSpeed = 5.0;
       this.controls.panSpeed = 10.0;
       //按键触发平移的速度
@@ -194,6 +202,15 @@ export default {
       const delta = this.clock.getDelta();
 
       if (this.mixer) this.mixer.update(delta);
+
+      if (this.roundLoock && this.roundLoock.length > 0) {
+        this.camera.position.copy(this.roundLoock[this.lookAtIndex]); //设置相机位置
+        this.camera.lookAt(this.point); //设置相机方向(指向的场景对象)
+        this.lookAtIndex++;
+        if (this.lookAtIndex >= this.roundLoock.length) {
+          this.lookAtIndex = 0;
+        }
+      }
 
       this.renderer.render(this.scene, this.camera);
       if (this.nCharacters) {
@@ -239,7 +256,9 @@ export default {
             }
 
             this.controls.target.set(point.x + n, point.y + 10, point.z + m);
-            this.camera.lookAt(new window.THREE.Vector3(point.x + n, point.y + 10, point.z + m));
+            this.camera.lookAt(
+              new window.THREE.Vector3(point.x + n, point.y + 10, point.z + m)
+            );
             this.controls.update();
             this.camera.position.set(point.x, point.y + 10, point.z);
             // this.renderer.render(this.scene, this.camera);
@@ -293,6 +312,8 @@ export default {
 
               switch (keyCode) {
                 case 32:
+                  // console.log(that.camera.rotation)
+                  // console.log(that.camera.position)
                   {
                     that.renderer.render(that.scene, that.camera);
                     let position = new window.THREE.Vector3();
@@ -324,6 +345,26 @@ export default {
             };
             this.threeDom.style.cursor = "crosshair";
             this.threeDom.addEventListener("mousedown", this.toMapPoint, false);
+          }
+
+          break;
+        case "环视":
+          item.active = !item.active;
+          this.threeDom.removeEventListener(
+            "mousedown",
+            this.huanraofeihangEvent,
+            false
+          );
+          this.threeDom.removeEventListener("mouseup", this.huanraofeihang, false);
+          this.threeDom.style.cursor = "auto";
+          this.roundLoock = null;
+          if (item.active) {
+            this.threeDom.style.cursor = "crosshair";
+            this.threeDom.addEventListener(
+              "mousedown",
+              this.huanraofeihangEvent,
+              false
+            );
           }
 
           break;
@@ -366,6 +407,30 @@ export default {
           this.reload();
         });
       }, 600);
+    },
+    huanraofeihangEvent() {
+      this.timeStart = new Date();
+      this.threeDom.removeEventListener("mouseup", this.huanraofeihang, false);
+      this.threeDom.addEventListener("mouseup", this.huanraofeihang, false);
+    },
+    huanraofeihang(event) {
+      this.timeEnd = new Date();
+      if (this.timeEnd - this.timeStart < 400) {
+        this.setIntersects(event, this.objectMeth.children, (intersects) => {
+          console.log(this.objectMeth.children, intersects);
+          if (intersects.length > 0) {
+            this.point = intersects[0].point;
+            this.roundLoock = this.setRoundLines(
+              100,
+              1000,
+              this.point.x,
+              this.point.y,
+              this.point.z
+            );
+            console.log(this.roundLoock);
+          }
+        });
+      }
     },
   },
 };

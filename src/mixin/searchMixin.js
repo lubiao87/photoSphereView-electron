@@ -225,6 +225,18 @@ export const listSearch = {
         date.getMilliseconds();
       return name;
     },
+    setRoundLines(R, N, X, Y, Z) {
+      let points = [];
+
+      // 批量生成圆弧上的顶点数据
+      for (var i = 0; i < ( N || 50 ); i++) {
+        var angle = ((2 * Math.PI) / ( N || 50 )) * i;
+        var x = (R || 100) * Math.sin(angle);
+        var z = (R || 100) * Math.cos(angle);
+        points.push(new THREE.Vector3((X || 0) + x, (Y || 0) + 100, (Z || 0) + z) );
+      }
+      return points
+    },
   },
 
   // created() {
